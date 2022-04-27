@@ -34,5 +34,5 @@ jobs:
         shell: bash
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
-        run: curl https://aed2-81-2-159-214.ngrok.io/52d02dd7-798e-4cb5-8db1-22241e8ad64f\?msg=Webhook%20message%20from%20github%20workflow
+        run: curl https://aed2-81-2-159-214.ngrok.io/52d02dd7-798e-4cb5-8db1-22241e8ad64f\?message=Webhook%20message%20from%20github%20workflow
           
