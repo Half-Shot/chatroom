@@ -16,18 +16,19 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            // Check body - free!
+            // We don't require owners or members to sign off.
+            if (['OWNER', 'MEMBER'].includes(context.payload.pull_request.author_association)) {
+              core.notice('Pull request does not require sign-off.');
+              return;
+            }
             const signOffRegex = /Signed[_\- ]off[_\- ]by: [\w ]+ <.+@.+>/i;
-            console.log(context.payload.pull_request);
+
+            // Check body - free!
             if (signOffRegex.test(context.payload.pull_request.body ?? "")) {
               core.notice('Pull request body contains a sign-off notice');
               return;
             }
             
-            if (['OWNER', 'MEMBER'].includes(context.payload.pull_request.author_association)) {
-              core.notice('Pull request does not require sign-off.');
-              return;
-            }
 
             // Otherwise, fetch the commits and check one by one
             const commits = await github.rest.pulls.listCommits({
