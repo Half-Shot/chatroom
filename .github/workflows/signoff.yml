@@ -1,0 +1,36 @@
+name: Check signoff
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  signoff:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Runs a single command using the runners shell
+      - name: Check PR body for sign off text.
+        uses: actions/github-script@v6
+        id: signoff-body
+        with:
+          script: |
+            const signOffRegex = /Signed-off-by: [\w ]+ <.+@.+>/i;
+            if(signOffRegex.test(context.payload.pull_request.body ?? "")) {
+              core.notice('Pull request body contains a sign-off notice');
+              return true;
+            }
+            // Otherwise, fetch the commits and check one by one
+            const commits = await github.rest.listCommits({
+              pull_request: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const commit = commits.find(c => signOffRegex.test(c.message);
+            if(commit) {
+              core.notice('Commit `${commit.id} contains a sign-off notice`);
+              return true;
+            }
+            core.setFailed('No sign-off found. Please ensure you have signed off the PR as per https://matrix-org.github.io/synapse/latest/development/contributing_guide.html#sign-off')
+          
