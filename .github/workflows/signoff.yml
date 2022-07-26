@@ -3,7 +3,7 @@ name: Check signoff
 on:
   pull_request:
     branches: [ master ]
-    types: [opened, edited]
+    types: [opened, edited, synchronize]
 
 jobs:
   signoff:
@@ -18,18 +18,9 @@ jobs:
           script: |
             // Check body - free!
             const signOffRegex = /Signed-off-by: [\w ]+ <.+@.+>/i;
+            console.log(context.payload.pull_request);
             if (signOffRegex.test(context.payload.pull_request.body ?? "")) {
               core.notice('Pull request body contains a sign-off notice');
-              return;
-            }
-
-            // Check if we need to sign off
-            const isOrgMember = await github.rest.orgs.checkMembershipForUser({
-              org: context.repo.owner,
-              username: context.payload.pull_request.user.name,
-            });
-            if (isOrgMember) {
-              core.notice(`User is an org member and is not required to sign off.`);
               return;
             }
 
