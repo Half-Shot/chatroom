@@ -21,9 +21,16 @@ jobs:
               core.notice('Pull request body contains a sign-off notice');
               return true;
             }
+            const isOrgMember = await octokit.rest.orgs.checkMembershipForUser({
+              org: context.repo.owner,
+              username: context.payload.pull_request.user.name,
+            });
+            if (isOrgMember) {
+              core.notice(`User is an org member and is not required to sign off.`);
+            }
             // Otherwise, fetch the commits and check one by one
-            const commits = await github.rest.listCommits({
-              pull_request: context.payload.pull_request.number,
+            const commits = await octokit.rest.pulls.listCommits({
+              pull_number: context.payload.pull_request.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
