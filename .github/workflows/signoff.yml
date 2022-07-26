@@ -3,6 +3,7 @@ name: Check signoff
 on:
   pull_request:
     branches: [ master ]
+    types: [opened, edited]
 
 jobs:
   signoff:
