@@ -13,23 +13,27 @@ jobs:
       # Runs a single command using the runners shell
       - name: Check PR body for sign off text.
         uses: actions/github-script@v6
-        id: signoff-body
         with:
           script: |
+            // Check body - free!
             const signOffRegex = /Signed-off-by: [\w ]+ <.+@.+>/i;
             if (signOffRegex.test(context.payload.pull_request.body ?? "")) {
               core.notice('Pull request body contains a sign-off notice');
-              return true;
+              return;
             }
-            const isOrgMember = await octokit.rest.orgs.checkMembershipForUser({
+
+            // Check if we need to sign off
+            const isOrgMember = await github.rest.orgs.checkMembershipForUser({
               org: context.repo.owner,
               username: context.payload.pull_request.user.name,
             });
             if (isOrgMember) {
               core.notice(`User is an org member and is not required to sign off.`);
+              return;
             }
+
             // Otherwise, fetch the commits and check one by one
-            const commits = await octokit.rest.pulls.listCommits({
+            const commits = await github.rest.pulls.listCommits({
               pull_number: context.payload.pull_request.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -37,7 +41,8 @@ jobs:
             const commit = commits.find(c => signOffRegex.test(c.message));
             if (commit) {
               core.notice(`Commit '${commit.id}' contains a sign-off notice`);
-              return true;
+              return;
             }
+
             core.setFailed('No sign-off found. Please ensure you have signed off the PR as per https://matrix-org.github.io/synapse/latest/development/contributing_guide.html#sign-off')
           
