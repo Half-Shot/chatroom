@@ -17,7 +17,7 @@ jobs:
         with:
           script: |
             const signOffRegex = /Signed-off-by: [\w ]+ <.+@.+>/i;
-            if(signOffRegex.test(context.payload.pull_request.body ?? "")) {
+            if (signOffRegex.test(context.payload.pull_request.body ?? "")) {
               core.notice('Pull request body contains a sign-off notice');
               return true;
             }
@@ -27,9 +27,9 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            const commit = commits.find(c => signOffRegex.test(c.message);
-            if(commit) {
-              core.notice('Commit `${commit.id} contains a sign-off notice`);
+            const commit = commits.find(c => signOffRegex.test(c.message));
+            if (commit) {
+              core.notice(`Commit '${commit.id}' contains a sign-off notice`);
               return true;
             }
             core.setFailed('No sign-off found. Please ensure you have signed off the PR as per https://matrix-org.github.io/synapse/latest/development/contributing_guide.html#sign-off')
